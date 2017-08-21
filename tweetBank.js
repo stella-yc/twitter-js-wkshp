@@ -2,8 +2,11 @@ const _ = require('lodash');
 
 const data = [];
 
+let idCounter = 0;
+
 function add (name, content) {
-  data.push({name: name, content: content});
+  idCounter++;
+  data.push({id: idCounter, name, content: content});
 }
 
 function list () {
@@ -34,3 +37,5 @@ const getFakeTweet = function() {
 for (let i = 0; i < 10; i++) {
   module.exports.add( getFakeName(), getFakeTweet() );
 }
+
+module.exports.add( "Azula", "I love cupcakes #ratcakes");

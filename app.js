@@ -6,9 +6,11 @@ const morgan = require('morgan');
 // templating
 const nunjucks = require('nunjucks');
 // routing
-const routes = require('./routes');
+const router = require('./routes');
 // invoke express object to create "app" which has built in methods
+const bodyParser = require('body-parser');
 const app = express();
+const socketio = require('socket.io');
 
 // mounts middleware function at the specified path
 // defaults to "/" if no path provided
@@ -22,16 +24,6 @@ app.use((req, res, next) => {
 const logger = morgan('dev');
 app.use(logger);
 
-// example data
-const locals = {
-  title: 'Example',
-  people: [
-    {name: 'Azula'},
-    {name: 'Frodo'},
-    {name: 'Hermione'}
-  ]
-};
-
 // configure templating to work with express!
 app.set('view engine', 'html'); // set res.render to work with html files
 app.engine('html', nunjucks.render); // when giving html files to res.render, tell it to use nunjucks
@@ -44,9 +36,14 @@ nunjucks.configure('views', {
 
 app.use(express.static('public'));
 
+// body parsing middleware
+// translates the HTTP message body from url-encoded strings and JSON
+// now, every request body will be transformed into a body object attached to the req object.
+app.use('/', bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+const server = app.listen(3000);
+const io = socketio.listen(server);
+
+const routes = router(io);
 app.use('/', routes);
-
-// listen on port 3000
-app.listen(3000);
-console.log('app is running on port 3000');
-
